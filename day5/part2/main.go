@@ -122,30 +122,23 @@ func checkUpdates(adjList map[int][]int, updates [][]int) int {
 
 	for _, update := range updates {
 		valid := true
-
-		// Track positions in the update
 		position := make(map[int]int)
 		for i, num := range update {
 			position[num] = i
 		}
 
-		// Validate the update
-		for center, dependents := range adjList {
-			centerPos, exists := position[center]
+		for before, afters := range adjList {
+			beforePos, exists := position[before]
 			if !exists {
 				continue
 			}
 
-			for _, dependent := range dependents {
-				dependentPos, exists := position[dependent]
-				if exists && dependentPos <= centerPos {
+			for _, after := range afters {
+				afterPos, exists := position[after]
+				if exists && afterPos <= beforePos {
 					valid = false
 					break
 				}
-			}
-
-			if !valid {
-				break
 			}
 		}
 
@@ -162,18 +155,15 @@ func checkUpdates(adjList map[int][]int, updates [][]int) int {
 }
 
 func reorder(update []int, adjList map[int][]int) []int {
-	// Build the graph based on the update list and adjacency rules
 	inDegree := make(map[int]int)
 	graph := make(map[int][]int)
 
-	// Initialize the graph with nodes from the update list
 	for _, num := range update {
 		if _, exists := graph[num]; !exists {
 			graph[num] = []int{}
 		}
 	}
 
-	// Populate the graph with edges based on the adjacency list
 	for center, dependents := range adjList {
 		for _, dependent := range dependents {
 			// Add edges only if both center and dependent are in the update list
@@ -184,14 +174,12 @@ func reorder(update []int, adjList map[int][]int) []int {
 		}
 	}
 
-	// Initialize in-degree for nodes without incoming edges
 	for _, num := range update {
 		if _, exists := inDegree[num]; !exists {
 			inDegree[num] = 0
 		}
 	}
 
-	// Perform topological sort
 	queue := []int{}
 	for _, num := range update {
 		if inDegree[num] == 0 {
@@ -202,7 +190,7 @@ func reorder(update []int, adjList map[int][]int) []int {
 	reordered := []int{}
 	for len(queue) > 0 {
 		current := queue[0]
-		queue = queue[1:]
+		queue = queue[1:] // remove from queue
 
 		reordered = append(reordered, current)
 
@@ -218,6 +206,7 @@ func reorder(update []int, adjList map[int][]int) []int {
 	if len(reordered) == len(update) {
 		return reordered
 	}
+	
 	return []int{} // Return empty if reordering fails
 }
 

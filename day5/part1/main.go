@@ -127,17 +127,15 @@ func checkUpdates(adjList map[int][]int, updates [][]int) int {
 			position[num] = i
 		}
 
-		for center, dependents := range adjList {
-			// Ensure the center number exists in the update
-			centerPos, exists := position[center]
+		for before, afters := range adjList {
+			beforePos, exists := position[before]
 			if !exists {
 				continue
 			}
 
-			// Verify that all dependents appear after the center
-			for _, dependent := range dependents {
-				dependentPos, exists := position[dependent]
-				if exists && dependentPos <= centerPos {
+			for _, after := range afters {
+				afterPos, exists := position[after]
+				if exists && afterPos <= beforePos {
 					valid = false
 					break
 				}
@@ -145,7 +143,7 @@ func checkUpdates(adjList map[int][]int, updates [][]int) int {
 		}
 
 		if valid && len(update) > 0 {
-			res += update[len(update)/2] // Assuming the first number is the "center"
+			res += update[len(update)/2]
 		}
 	}
 
