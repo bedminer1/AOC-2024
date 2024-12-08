@@ -82,17 +82,14 @@ func helper(nums []int, target, current int, index int) bool {
 
 	nextNum := nums[index]
 
-	// Try adding the next number
 	if helper(nums, target, current+nextNum, index+1) {
 		return true
 	}
 
-	// Try multiplying by the next number
 	if helper(nums, target, current*nextNum, index+1) {
 		return true
 	}
 
-	// Try concatenating the current and next numbers
 	concatNum, _ := strconv.Atoi(fmt.Sprintf("%d%d", current, nextNum))
 	if helper(nums, target, concatNum, index+1) {
 		return true
