@@ -84,22 +84,17 @@ func tallyAntinodes(locationMap map[rune][]coords, mapBoundary int) int {
 				dx := a2.x - a1.x
 				dy := a2.y - a1.y
 
-				antinodes := []coords{
-					{
-						x: a1.x - dx,
-						y: a1.y - dy,
-					},
-					{
-						x: a2.x + dx,
-						y: a2.y + dy,
-					},
-				}
-
-				for _, antinode := range antinodes {
-					if isWithinMap(antinode.x, antinode.y) {
-						uniqueAntinodes[antinode] = struct{}{}
+				extendLine := func(start coords, dirX, dirY int) {
+					x, y := start.x, start.y
+					for isWithinMap(x, y) {
+						uniqueAntinodes[coords{x, y}] = struct{}{}
+						x += dirX
+						y += dirY
 					}
 				}
+
+				extendLine(a1, dx, dy)
+				extendLine(a2, -dx, -dy)
 			}
 		}
 	}
