@@ -4,24 +4,22 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
 	input := fetch("../input.txt")
 
 	uncompressedInput := uncompress(input)
-	res := flush(uncompressedInput)
-	f, _ := os.Create("output.txt")
-	defer f.Close()
-	f.WriteString(res)
+	flushedData := flush(uncompressedInput)
+	res := calculateCheckSum(flushedData)
+	fmt.Println("Actual Result: ", res)
 
 	testInput := `2333133121414131402`
-	uncompressedTestInput := uncompress(testInput)
-	testRes := flush(uncompressedTestInput)
-	fmt.Println("Test Result: ", testRes)
 
+	uncompressedTestInput := uncompress(testInput)
+	testFlushedData := flush(uncompressedTestInput)
+	testRes := calculateCheckSum(testFlushedData)
+	fmt.Println("Test Result: ", testRes)
 }
 
 func fetch(fileName string) string {
@@ -31,52 +29,61 @@ func fetch(fileName string) string {
 	return string(data)
 }
 
-func uncompress(input string) string {
+func uncompress(input string) []int {
 	id := 0
-	var sb strings.Builder
+	res := []int{}
 
 	for i, c := range input {
 		size := int(c - '0')
-		toPrint := strconv.Itoa(id)
+		toPrint := id
 		if i%2 != 0 {
 			id++
-			toPrint = "."
+			toPrint = -1
 		}
 
 		for j := 0; j < size; j++ {
-			sb.WriteString(toPrint)
+			res = append(res, toPrint)
 		}
 	}
 
-	return sb.String()
+	return res
 }
 
-func flush(input string) string {
+func flush(input []int) []int {
 	left, right := 0, len(input)-1
 
-	var sb strings.Builder
-	var empty strings.Builder
+	res := []int{}
 
-	for left < right {
-		for input[left] != '.' {
-			sb.WriteByte(input[left])
+	for left <= right {
+		for input[left] != -1 {
+			res = append(res, input[left])
 			left++
-			if left >= right { break }
+			if left > right {
+				break
+			}
 		}
 
-		for input[left] == '.' {
-			for input[right] == '.' {
-				empty.WriteByte('.')
+		for input[left] == -1 {
+			for input[right] == -1 {
 				right--
 			}
-			sb.WriteByte(input[right])
-			empty.WriteByte('.')
+			res = append(res, input[right])
 			left++
 			right--
-			if left >= right { break }
+			if left > right {
+				break
+			}
 		}
 	}
-	sb.WriteString(empty.String())
 
-	return sb.String()
+	return res
+}
+
+func calculateCheckSum(input []int) int {
+	res := 0
+	for i, num := range input {
+		res += i * num
+	}
+
+	return res
 }
